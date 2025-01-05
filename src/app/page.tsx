@@ -1,16 +1,16 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Shield, ShieldAlert, ShieldOff, Calendar } from 'lucide-react'
+import { Button } from "@/src/components/ui/button"
+import { Input } from "@/src/components/ui/input"
+import { Shield, ShieldAlert, ShieldOff, Calendar, Globe } from 'lucide-react'
 
 // Mock function to check if a domain is malicious
 const isMaliciousDomain = (domain: string) => {
   const maliciousDomains = {
-    'evil.com': 'Malware Distribution List',
-    'malware.com': 'Phishing Sites List',
-    'phishing.com': 'Spam Domains List'
+    'evil.com': 'Lista de Distribuição de Malware',
+    'malware.com': 'Lista de Sites de Phishing',
+    'phishing.com': 'Lista de Domínios de Spam'
   }
   return maliciousDomains[domain as keyof typeof maliciousDomains] || null
 }
@@ -69,21 +69,21 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-4 bg-gray-100">
       <div className="w-full max-w-md space-y-4">
-        <h1 className="text-2xl font-bold text-center">URL Security Checker</h1>
+        <h1 className="text-2xl font-bold text-center">Verificador de Segurança de URL</h1>
         <p className="text-sm text-center text-gray-600">
-          Paste a URL below to check if it's potentially malicious or newly registered.
+          Cole uma URL abaixo para verificar se é potencialmente maliciosa ou recentemente registrada.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             type="url"
-            placeholder="https://example.com"
+            placeholder="https://exemplo.com"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             required
             className="w-full text-lg py-6 px-4"
           />
           <Button type="submit" className="w-full">
-            Check URL
+            Verificar URL
           </Button>
         </form>
         {result && (
@@ -94,7 +94,7 @@ export default function Home() {
               'bg-green-100'
             }`}>
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-semibold">Security Status</h2>
+                <h2 className="text-lg font-semibold">Status de Segurança</h2>
                 {securityStatus === 'danger' && <ShieldOff className="text-red-600" size={24} />}
                 {securityStatus === 'warning' && <ShieldAlert className="text-yellow-600" size={24} />}
                 {securityStatus === 'secure' && <Shield className="text-green-600" size={24} />}
@@ -104,43 +104,43 @@ export default function Home() {
                 securityStatus === 'warning' ? 'text-yellow-600' :
                 'text-green-600'
               }`}>
-                {result.maliciousListName ? "Potentially Malicious" : 
-                 result.isNewDomain ? "Recently Registered Domain" : 
-                 "Secure"}
+                {result.maliciousListName ? "Potencialmente Malicioso" : 
+                 result.isNewDomain ? "Domínio Recentemente Registrado" : 
+                 "Seguro"}
               </p>
               {result.maliciousListName && (
                 <p className="mt-2 text-sm">
-                  Found in: <span className="font-medium">{result.maliciousListName}</span>
+                  Encontrado em: <span className="font-medium">{result.maliciousListName}</span>
                 </p>
               )}
               {result.isNewDomain && !result.maliciousListName && (
                 <p className="mt-2 text-sm">
-                  This domain was registered recently. Exercise caution.
+                  Este domínio foi registrado recentemente. Tenha cuidado.
                 </p>
               )}
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Domain Details</h3>
-                <Calendar size={20} />
-              </div>
-              <p><span className="font-medium">Domain:</span> {result.domain}</p>
-              <p><span className="font-medium">Registration Date:</span> {result.registrationDate.toDateString()}</p>
             </div>
             <div className={`p-4 rounded-lg shadow ${
               result.isNewDomain ? 'bg-yellow-100' : 'bg-green-100'
             }`}>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Domain Age</h3>
+                <h3 className="font-semibold">Idade do Domínio</h3>
                 <Calendar size={20} className={result.isNewDomain ? 'text-yellow-600' : 'text-green-600'} />
               </div>
               <p className={`font-medium ${
                 result.isNewDomain ? 'text-yellow-600' : 'text-green-600'
               }`}>
                 {result.isNewDomain 
-                  ? "Less than 6 months old" 
-                  : "More than 6 months old"}
+                  ? "Menos de 6 meses" 
+                  : "Mais de 6 meses"}
               </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">Detalhes do Domínio</h3>
+                <Globe size={20} />
+              </div>
+              <p><span className="font-medium">Domínio:</span> {result.domain}</p>
+              <p><span className="font-medium">Data de Registro:</span> {result.registrationDate.toLocaleDateString('pt-BR')}</p>
             </div>
           </div>
         )}

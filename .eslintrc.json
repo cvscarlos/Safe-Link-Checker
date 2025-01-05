@@ -1,4 +1,37 @@
 {
-	"extends": ["next/core-web-vitals", "plugin:eslint-plugin-next-on-pages/recommended"],
-	"plugins": ["eslint-plugin-next-on-pages", "plugin:prettier/recommended"]
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
+  "overrides": [
+    {
+      "files": ["next.config.mjs"],
+      "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+      }
+    },
+    {
+      "files": ["src/**/*"],
+      "env": {
+        "browser": true,
+        "node": false
+      },
+      "extends": [
+        "next/core-web-vitals",
+        "plugin:eslint-plugin-next-on-pages/recommended"
+      ],
+      "plugins": [
+        "eslint-plugin-next-on-pages"
+      ]
+    }
+  ]
 }

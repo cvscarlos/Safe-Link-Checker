@@ -4,45 +4,12 @@ import { FormEvent, useState } from 'react';
 import { Shield, ShieldAlert, ShieldOff, Calendar, Globe } from 'lucide-react';
 import axiosRetry from 'axios-retry';
 import axios from 'axios';
-import { parse } from 'tldts';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/spinner';
-import * as tldRdap from '../../data/tld-rdap.json';
-import * as domainLists from '../../data/domains.json';
-import * as listNames from '../../data/list-index.json';
 
 axiosRetry(axios, { retries: 3 });
-
-type RdapApiResult = {
-	events: { eventAction: string; eventDate: string }[];
-};
-
-async function isMaliciousDomain(domain: string) {
-	const lists = (domainLists as Record<string, number[]>)[domain as keyof typeof domainLists];
-	if (!lists) return null;
-
-	return lists.map((listId) => listNames[String(listId) as keyof typeof listNames]).join(', ');
-}
-
-async function getDomainRegistrationDate(domain: string) {
-	const tld = domain.split('.').slice(-1)[0];
-	const rdapApi = tldRdap.services.find((s) => {
-		return s[0].includes(tld);
-	});
-
-	if (!rdapApi) throw new Error('Infelizmente, este domínio não pode ser verificado');
-
-	const corsProxy = 'https://api.allorigins.win/raw?url=';
-	const rdapApiUrl = encodeURIComponent(rdapApi[1] + 'domain/' + domain);
-	const { data: rdapApiData } = await axios<RdapApiResult>(corsProxy + rdapApiUrl);
-
-	const registrationDateStr = rdapApiData.events.find((e: any) => e.eventAction === 'registration')?.eventDate;
-	if (!registrationDateStr) throw new Error('Não foi possível obter a data de registro deste domínio');
-
-	return new Date(registrationDateStr);
-}
 
 const domainRegex = /\b[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.[a-z]{2,}(\.[a-z]{2,})?\b/i;
 
@@ -64,24 +31,22 @@ export default function HomeForm() {
 		setIsLoading(true);
 
 		const urlInput = ((e.target as HTMLFormElement).elements.namedItem('domain') as HTMLInputElement).value;
-		const { domain } = parse(urlInput.match(domainRegex)?.[0] || '');
+		const site = urlInput.match(domainRegex)?.[0] || '';
 
-		if (!domain) {
+		if (!site) {
 			setError('Por favor, insira um link válido (ex: https://example.com)');
 			setIsLoading(false);
 			return;
 		}
 
 		try {
-			const [maliciousListName, registrationDate] = await Promise.all([
-				isMaliciousDomain(domain),
-				getDomainRegistrationDate(domain),
-			]);
-
+			const { data } = await axios.post(`http://localhost:3300/query?domain=${site}`);
+			const maliciousListName = data.lists.join(', ');
+			const registrationDate = new Date(data.registrationDate);
 			const domainMonths = Math.floor((Date.now() - registrationDate.getTime()) / (30 * 24 * 60 * 60 * 1000)); // not precise, I know
 
 			setResult({
-				domain,
+				domain: data.domain,
 				maliciousListName,
 				registrationDate,
 				domainMonths,
@@ -113,7 +78,7 @@ export default function HomeForm() {
 		<div>
 			{isLoading && <Spinner />}
 
-			<form onSubmit={handleSubmit} className="space-y-4">
+			<form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
 				<div>
 					<Input
 						type="text"

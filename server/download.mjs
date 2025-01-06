@@ -3,19 +3,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parse } from 'tldts';
 
+const allowList = JSON.parse(fs.readFileSync('./data/allow-list-domains.json', 'utf-8'));
+
 const listsIpStyle = {
-	Abuse: 'https://blocklistproject.github.io/Lists/abuse.txt',
-	Drogas: 'https://blocklistproject.github.io/Lists/drugs.txt',
-	Malware: 'https://blocklistproject.github.io/Lists/malware.txt',
-	Pirataria: 'https://blocklistproject.github.io/Lists/piracy.txt',
-	Scam: 'https://blocklistproject.github.io/Lists/scam.txt',
-	Ransomware: 'https://blocklistproject.github.io/Lists/ransomware.txt',
-	Phishing: 'https://blocklistproject.github.io/Lists/phishing.txt',
-	Fraude: 'https://blocklistproject.github.io/Lists/fraud.txt',
+	'b/Abuse': 'https://blocklistproject.github.io/Lists/abuse.txt',
+	'b/Drogas': 'https://blocklistproject.github.io/Lists/drugs.txt',
+	'b/Malware': 'https://blocklistproject.github.io/Lists/malware.txt',
+	'b/Pirataria': 'https://blocklistproject.github.io/Lists/piracy.txt',
+	'b/Scam': 'https://blocklistproject.github.io/Lists/scam.txt',
+	'b/Ransomware': 'https://blocklistproject.github.io/Lists/ransomware.txt',
+	'b/Phishing': 'https://blocklistproject.github.io/Lists/phishing.txt',
+	'b/Fraude': 'https://blocklistproject.github.io/Lists/fraud.txt',
 };
 const listAdblockStyle = {
-	Pirataria: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/anti.piracy.txt',
-	Fraude: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/fake.txt',
+	'h/Pirataria': 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/anti.piracy.txt',
+	'h/Fraude': 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/fake.txt',
+	'h/DNS Dinâmico': 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/dyndns.txt',
+	'r/Malware': 'https://raw.githubusercontent.com/RPiList/specials/master/Blocklisten/malware',
+	'r/Phishing': 'https://raw.githubusercontent.com/RPiList/specials/master/Blocklisten/Phishing-Angriffe',
+	'r/Spam': 'https://raw.githubusercontent.com/RPiList/specials/master/Blocklisten/spam.mails',
 };
 const listAdblockStyleValues = Object.values(listAdblockStyle);
 const lists = { ...listsIpStyle, ...listAdblockStyle };
@@ -72,6 +78,9 @@ async function storeDomainLists() {
 	const jsonDomains = Object.fromEntries(
 		Object.entries(domains).map(([domain, listIds]) => [domain, Array.from(listIds)]),
 	);
+	allowList.forEach((domain) => {
+		delete jsonDomains[domain];
+	});
 	const filePath = path.resolve(process.cwd(), 'data/domains.json');
 	fs.writeFileSync(filePath, JSON.stringify(jsonDomains));
 	console.info('Domains saved to:', filePath);

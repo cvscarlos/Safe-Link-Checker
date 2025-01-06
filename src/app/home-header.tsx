@@ -7,11 +7,12 @@ export default function HomeHeader({
 }>) {
 	return (
 		<main className="flex min-h-screen flex-col items-center justify-start p-4 bg-gray-100">
-			<div className="w-full max-w-md space-y-4">
-				<h1 className="text-2xl font-bold text-center">Verificador de Sites Seguros</h1>
-				<p className="text-sm text-center text-gray-600">
-					Cole o link abaixo para verificar se ele é confiável. A ferramenta identifica possíveis riscos, como
-					sites falsos ou perigosos.
+			<div className="w-full max-w-screen-md space-y-4">
+				<h1 className="text-2xl font-bold text-center">Verificador de Links</h1>
+				<p className="text-sm text-center text-gray-600 mb-2">
+					Antes de clicar em um link, use nossa ferramenta para garantir que ele é seguro. <br />A verificação
+					detecta ameaças como phishing, malware e botnets, protegendo você contra links perigosos e
+					garantindo uma navegação mais segura.
 				</p>
 				{children}
 			</div>

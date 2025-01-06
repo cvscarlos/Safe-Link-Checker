@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 import '../styles/globals.css';
 
 export const metadata: Metadata = {
-	title: 'Verifique se um Site é Seguro Agora',
+	title: 'Verificador de Links: Este Link é Seguro?',
 	description:
-		'Ferramenta online gratuita para verificar se sites são seguros ou maliciosos. Proteja-se contra phishing e links inseguros.',
+		'Verifique se o link é seguro com nossa ferramenta gratuita. Proteja-se contra phishing, malware e botnets antes de clicar.',
 };
 
 export default function RootLayout({

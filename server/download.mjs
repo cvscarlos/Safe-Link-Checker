@@ -22,6 +22,8 @@ const listAdblockStyle = {
 	'r/Malware': 'https://raw.githubusercontent.com/RPiList/specials/master/Blocklisten/malware',
 	'r/Phishing': 'https://raw.githubusercontent.com/RPiList/specials/master/Blocklisten/Phishing-Angriffe',
 	'r/Spam': 'https://raw.githubusercontent.com/RPiList/specials/master/Blocklisten/spam.mails',
+	'c/Fraude':
+		'https://raw.githubusercontent.com/cvscarlos/Safe-Link-Checker/refs/heads/main/dns-blocklist/phishing.txt',
 };
 const listAdblockStyleValues = Object.values(listAdblockStyle);
 const lists = { ...listsIpStyle, ...listAdblockStyle };
@@ -29,13 +31,14 @@ const listEntries = Object.entries(lists);
 const listIndexesByUrl = new Map(listEntries.map(([, url], index) => [url, index]));
 const listIndexesByName = new Map(listEntries.map(([name], index) => [index, name]));
 const domains = {};
+const dataDir = path.resolve(process.cwd(), 'data');
 
 async function downloadDomainsRDAP() {
 	const response = await fetch('https://data.iana.org/rdap/dns.json');
 	const data = await response.json();
 	const filePath = path.resolve(process.cwd(), 'data/tld-rdap.json');
 	fs.writeFileSync(filePath, JSON.stringify(data));
-	console.info('Domains saved to:', filePath);
+	console.info('DNS APIs saved to:', filePath);
 }
 
 function parseListAdblockStyle(line) {
@@ -81,11 +84,11 @@ async function storeDomainLists() {
 	allowList.forEach((domain) => {
 		delete jsonDomains[domain];
 	});
-	const filePath = path.resolve(process.cwd(), 'data/domains.json');
+	const filePath = path.resolve(dataDir, 'domains.json');
 	fs.writeFileSync(filePath, JSON.stringify(jsonDomains));
 	console.info('Domains saved to:', filePath);
 
-	const listIndexfilePath = path.resolve(process.cwd(), 'data/list-index.json');
+	const listIndexfilePath = path.resolve(dataDir, 'list-index.json');
 	fs.writeFileSync(listIndexfilePath, JSON.stringify(Object.fromEntries(listIndexesByName)));
 	console.info('List indexes saved to:', listIndexfilePath);
 }

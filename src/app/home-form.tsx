@@ -11,7 +11,7 @@ import { Spinner } from '@/components/spinner';
 
 axiosRetry(axios, { retries: 3 });
 
-const domainRegex = /\b[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.[a-z]{2,}(\.[a-z]{2,})?\b/i;
+const domainRegex = /\b[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z]{2,})+\b/i;
 
 export default function HomeForm() {
 	const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export default function HomeForm() {
 		}
 
 		try {
-			const { data } = await axios.post(`http://localhost:3300/query?domain=${site}`);
+			const { data } = await axios.post(`/api/check?domain=${site}`);
 			const maliciousListName = data.lists.join(', ');
 			const registrationDate = new Date(data.registrationDate);
 			const domainMonths = Math.floor((Date.now() - registrationDate.getTime()) / (30 * 24 * 60 * 60 * 1000)); // not precise, I know
@@ -80,9 +80,13 @@ export default function HomeForm() {
 
 			<form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
 				<div>
+					<label htmlFor="domain" className="block text-sm text-gray-700">
+						Cole o link abaixo:
+					</label>
 					<Input
 						type="text"
 						name="domain"
+						id="domain"
 						placeholder="exemplo.com.br"
 						required
 						onChange={() => {
@@ -115,7 +119,7 @@ export default function HomeForm() {
 								? 'Este site pode ser perigoso'
 								: result.isNewDomain
 									? 'Domínio registrado recentemente'
-									: 'Este site parece seguro'}
+									: `Este site parece seguro: ${result.domain}`}
 						</p>
 						{result.maliciousListName && (
 							<p className="mt-2 text-sm">

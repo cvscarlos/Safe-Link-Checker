@@ -3,10 +3,12 @@
 import { parse } from 'tldts';
 import axios from 'axios';
 import fs from 'node:fs';
+import path from 'node:path';
 
-const tldRdap = JSON.parse(fs.readFileSync('./data/tld-rdap.json', 'utf-8'));
-const domainLists = JSON.parse(fs.readFileSync('./data/domains.json', 'utf-8'));
-const listNames = JSON.parse(fs.readFileSync('./data/list-index.json', 'utf-8'));
+const dataDir = path.join(process.cwd(), 'data');
+const tldRdap = JSON.parse(fs.readFileSync(`${dataDir}/tld-rdap.json`, 'utf-8'));
+const domainLists = JSON.parse(fs.readFileSync(`${dataDir}/domains.json`, 'utf-8'));
+const listNames = JSON.parse(fs.readFileSync(`${dataDir}/list-index.json`, 'utf-8'));
 
 // Vercel dynamic export
 export const dynamic = 'force-dynamic';

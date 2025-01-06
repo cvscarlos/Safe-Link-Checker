@@ -80,7 +80,7 @@ export default function HomeForm() {
 
 			<form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
 				<div>
-					<label htmlFor="domain" className="block text-sm text-gray-700">
+					<label htmlFor="domain" className="block text-sm mb-1">
 						Cole o link abaixo:
 					</label>
 					<Input
@@ -92,11 +92,11 @@ export default function HomeForm() {
 						onChange={() => {
 							setError(null);
 						}}
-						className={`w-full text-lg py-6 px-4 ${error ? 'border-red-500' : ''}`}
+						className={`w-full text-lg py-6 px-4 ${error && 'border-red-500'}`}
 					/>
 					{error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 				</div>
-				<Button type="submit" className="w-full">
+				<Button type="submit" className="w-full text-lg">
 					Verificar Link
 				</Button>
 			</form>

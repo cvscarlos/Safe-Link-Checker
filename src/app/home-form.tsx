@@ -4,11 +4,14 @@ import { FormEvent, useState } from 'react';
 import { Shield, ShieldAlert, ShieldOff, Calendar, Globe } from 'lucide-react';
 import axiosRetry from 'axios-retry';
 import axios from 'axios';
+import { parse } from 'tldts';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/spinner';
 import * as tldRdap from '../../data/tld-rdap.json';
+import * as domainLists from '../../data/domains.json';
+import * as listNames from '../../data/list-index.json';
 
 axiosRetry(axios, { retries: 3 });
 
@@ -17,12 +20,10 @@ type RdapApiResult = {
 };
 
 async function isMaliciousDomain(domain: string) {
-	const maliciousDomains = {
-		'evil.com': 'Lista de Distribuição de Malware',
-		'malware.com': 'Lista de Sites de Phishing',
-		'phishing.com': 'Lista de Domínios de Spam',
-	};
-	return maliciousDomains[domain as keyof typeof maliciousDomains] || null;
+	const lists = (domainLists as Record<string, number[]>)[domain as keyof typeof domainLists];
+	if (!lists) return null;
+
+	return lists.map((listId) => listNames[String(listId) as keyof typeof listNames]).join(', ');
 }
 
 async function getDomainRegistrationDate(domain: string) {
@@ -63,10 +64,10 @@ export default function HomeForm() {
 		setIsLoading(true);
 
 		const urlInput = ((e.target as HTMLFormElement).elements.namedItem('domain') as HTMLInputElement).value;
-		const domain = urlInput.match(domainRegex)?.[0];
+		const { domain } = parse(urlInput.match(domainRegex)?.[0] || '');
 
 		if (!domain) {
-			setError('Por favor, insira um link válida (ex: https://example.com)');
+			setError('Por favor, insira um link válido (ex: https://example.com)');
 			setIsLoading(false);
 			return;
 		}
@@ -78,8 +79,6 @@ export default function HomeForm() {
 			]);
 
 			const domainMonths = Math.floor((Date.now() - registrationDate.getTime()) / (30 * 24 * 60 * 60 * 1000)); // not precise, I know
-
-			console.log({ domainMonths });
 
 			setResult({
 				domain,
@@ -95,20 +94,20 @@ export default function HomeForm() {
 		}
 	};
 
-	const getStatusClass = () => {
+	const statusClass = (() => {
 		if (!result) return null;
 		if (result.maliciousListName) return 'red';
 		if (result.domainMonths < 6) return 'red';
 		if (result.isNewDomain) return 'yellow';
 		return 'green';
-	};
+	})();
 
-	const getAgeClass = () => {
+	const ageClass = (() => {
 		if (!result) return '---';
 		if (result.domainMonths >= 12) return 'green';
 		if (result.domainMonths >= 6) return 'yellow';
 		return 'red';
-	};
+	})();
 
 	return (
 		<div>
@@ -136,30 +135,27 @@ export default function HomeForm() {
 			{result && (
 				<div className="mt-4 space-y-4">
 					<div
-						className={`p-4 rounded-lg shadow ${
-							getStatusClass() === 'red'
-								? 'bg-red-100'
-								: getStatusClass() === 'yellow'
-									? 'bg-yellow-100'
-									: 'bg-green-100'
-						}`}
+						className={`p-4 rounded-lg shadow ${statusClass === 'red' ? 'bg-red-100' : statusClass === 'yellow' ? 'bg-yellow-100' : 'bg-green-100'}`}
 					>
 						<div className="flex items-center justify-between mb-2">
 							<h2 className="text-lg font-semibold">Status de Segurança</h2>
-							{getStatusClass() === 'red' && <ShieldOff className="text-red-600" size={24} />}
-							{getStatusClass() === 'yellow' && <ShieldAlert className="text-yellow-600" size={24} />}
-							{getStatusClass() === 'green' && <Shield className="text-green-600" size={24} />}
+							{statusClass === 'red' && <ShieldOff className="text-red-600" size={24} />}
+							{statusClass === 'yellow' && <ShieldAlert className="text-yellow-600" size={24} />}
+							{statusClass === 'green' && <Shield className="text-green-600" size={24} />}
 						</div>
-						<p className={`font-medium bg-${getStatusClass()}-100`}>
+						<p
+							className={`font-medium ${statusClass === 'red' ? 'text-red-900' : statusClass === 'yellow' ? 'text-yellow-900' : 'text-green-900'}`}
+						>
 							{result.maliciousListName
-								? 'Potencialmente Malicioso'
+								? 'Este site pode ser perigoso'
 								: result.isNewDomain
-									? 'Domínio Recentemente Registrado'
-									: 'Seguro'}
+									? 'Domínio registrado recentemente'
+									: 'Este site parece seguro'}
 						</p>
 						{result.maliciousListName && (
 							<p className="mt-2 text-sm">
-								Encontrado em: <span className="font-medium">{result.maliciousListName}</span>
+								Encontrado nas listas de:{' '}
+								<span className="font-medium">{result.maliciousListName}</span>
 							</p>
 						)}
 						{result.isNewDomain && !result.maliciousListName && (
@@ -167,18 +163,41 @@ export default function HomeForm() {
 						)}
 					</div>
 
-					<div className={`p-4 rounded-lg shadow bg-${getAgeClass()}-100`}>
+					<div
+						className={`p-4 rounded-lg shadow ${ageClass === 'red' ? 'bg-red-100' : ageClass === 'yellow' ? 'bg-yellow-100' : 'bg-green-100'}`}
+					>
 						<div className="flex items-center justify-between mb-2">
 							<h3 className="font-semibold">Idade do Domínio</h3>
-							<Calendar size={20} className={`text-${getAgeClass()}-600`} />
+							<Calendar
+								size={20}
+								className={
+									ageClass === 'red'
+										? 'text-red-600'
+										: ageClass === 'yellow'
+											? 'text-yellow-600'
+											: 'text-green-600'
+								}
+							/>
 						</div>
-						<p className={`font-medium text-${getAgeClass()}-600`}>
+						<p
+							className={`font-medium ${ageClass === 'red' ? 'text-red-900' : ageClass === 'yellow' ? 'text-yellow-900' : 'text-green-900'}`}
+						>
 							{result.domainMonths >= 12
 								? 'Mais de 1 ano'
 								: result.domainMonths >= 6
-									? 'Mais de 6 meses'
+									? 'Entre 6 e 12 meses'
 									: 'Menos de 6 meses'}
 						</p>
+						{result.isNewDomain && (
+							<p className="mt-2 text-sm">
+								Sites muito novos podem ser menos confiáveis, então tenha cuidado.
+							</p>
+						)}
+						{!result.isNewDomain && (
+							<p className="mt-2 text-sm">
+								Sites mais antigos costumam ser mais confiáveis, mas isso não é uma regra.
+							</p>
+						)}
 					</div>
 
 					<div className="bg-white p-4 rounded-lg shadow">
@@ -187,11 +206,11 @@ export default function HomeForm() {
 							<Globe size={20} />
 						</div>
 						<p>
-							<span className="font-medium">Domínio:</span> {result.domain}
+							<span className="font-medium">Nome do site:</span> <strong>{result.domain}</strong>
 						</p>
 						<p>
-							<span className="font-medium">Data de Registro:</span>{' '}
-							{result.registrationDate.toLocaleDateString('pt-BR')}
+							<span className="font-medium">Registrado em:</span>{' '}
+							<strong>{result.registrationDate.toLocaleDateString('pt-BR')}</strong>
 						</p>
 					</div>
 				</div>

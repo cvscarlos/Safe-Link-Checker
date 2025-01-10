@@ -1,1 +1,17 @@
-{"0":"b/Abuse","1":"b/Drogas","2":"b/Malware","3":"b/Pirataria","4":"b/Scam","5":"b/Ransomware","6":"b/Phishing","7":"b/Fraude","8":"h/Pirataria","9":"h/Fraude","10":"h/DNS Dinâmico","11":"r/Malware","12":"r/Phishing","13":"r/Spam","14":"c/Fraude"}
+{
+  "0": "b/Abuse",
+  "1": "b/Drogas",
+  "2": "b/Malware",
+  "3": "b/Pirataria",
+  "4": "b/Scam",
+  "5": "b/Ransomware",
+  "6": "b/Phishing",
+  "7": "b/Fraude",
+  "8": "h/Pirataria",
+  "9": "h/Fraude",
+  "10": "h/DNS Dinâmico",
+  "11": "r/Malware",
+  "12": "r/Phishing",
+  "13": "r/Spam",
+  "14": "c/Fraude"
+}

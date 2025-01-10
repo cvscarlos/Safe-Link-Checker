@@ -37,7 +37,7 @@ async function downloadDomainsRDAP() {
 	const response = await fetch('https://data.iana.org/rdap/dns.json');
 	const data = await response.json();
 	const filePath = path.resolve(process.cwd(), 'data/tld-rdap.json');
-	fs.writeFileSync(filePath, JSON.stringify(data));
+	fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 	console.info('DNS APIs saved to:', filePath);
 }
 
@@ -85,11 +85,11 @@ async function storeDomainLists() {
 		delete jsonDomains[domain];
 	});
 	const filePath = path.resolve(dataDir, 'domains.json');
-	fs.writeFileSync(filePath, JSON.stringify(jsonDomains));
+	fs.writeFileSync(filePath, JSON.stringify(jsonDomains, null, 2));
 	console.info('Domains saved to:', filePath);
 
 	const listIndexfilePath = path.resolve(dataDir, 'list-index.json');
-	fs.writeFileSync(listIndexfilePath, JSON.stringify(Object.fromEntries(listIndexesByName)));
+	fs.writeFileSync(listIndexfilePath, JSON.stringify(Object.fromEntries(listIndexesByName), null, 2));
 	console.info('List indexes saved to:', listIndexfilePath);
 }
 

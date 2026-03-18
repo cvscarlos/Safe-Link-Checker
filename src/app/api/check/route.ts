@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 import { parse } from 'tldts';
 import axios from 'axios';
 import fs from 'node:fs';

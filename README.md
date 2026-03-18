@@ -1,6 +1,6 @@
 # SafeLink Verifier
 
-A free tool to check if a link or URL is safe to visit. 
+A free tool to check if a link or URL is safe to visit.
 
 Protect yourself from phishing, malware, and botnets by verifying links before you click.
 
